@@ -1,15 +1,20 @@
 package com.ra34.projecte2.service;
 
+import com.ra34.projecte2.dto.ProductResponseDTO;
 import com.ra34.projecte2.model.Product;
 import com.ra34.projecte2.model.ProductCondition;
 import com.ra34.projecte2.repository.ProductRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class ProductService {
@@ -53,4 +58,34 @@ public class ProductService {
         }
         return count;
     }
+
+
+    // Función traductora para ocultar datos de auditoría
+    private ProductResponseDTO convertToDTO(Product p) {
+        ProductResponseDTO dto = new ProductResponseDTO();
+        dto.setId(p.getId());
+        dto.setName(p.getName());
+        dto.setDescription(p.getDescription());
+        dto.setStock(p.getStock());
+        dto.setPrice(p.getPrice());
+        dto.setRating(p.getRating());
+        dto.setConditionStatus(p.getCondition());
+        return dto;
+    }
+    // 1. Buscar por rango de precio y nombre (JPQL) 
+    public List<ProductResponseDTO> searchByPriceRangeAndName(Double priceMin, Double priceMax, String prefix, int limit) {
+        // Usamos PageRequest para limitar el número de resultados (paginación básica)
+        Pageable pageable = PageRequest.of(0, limit);
+        List<Product> products = productRepository.findByPriceRangeAndNameAndStatusTrue(priceMin, priceMax, prefix, pageable);
+        return products.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
+    // 2. Top 5 mejor relación calidad-precio (JPQL) 
+    public List<ProductResponseDTO> getTop5BestQualityPrice() {
+        // Pedimos solo la primera página con un tamaño máximo de 5 elementos
+        Pageable pageable = PageRequest.of(0, 5);
+        List<Product> products = productRepository.findTopBestQualityPriceRatio(pageable);
+        return products.stream().map(this::convertToDTO).collect(Collectors.toList());
+    }
+
 }
