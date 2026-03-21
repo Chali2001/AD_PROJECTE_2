@@ -1,11 +1,14 @@
 package com.ra34.projecte2.service;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.ra34.projecte2.dto.ProductDto;
 import com.ra34.projecte2.model.Product;
+import com.ra34.projecte2.model.ProductCondition;
 import com.ra34.projecte2.repository.ProductRepository;
 
 @Service
@@ -13,6 +16,44 @@ public class ProductService {
 
 	@Autowired
 	private ProductRepository productRepository;
+
+	// Mapeja Product a ProductDto per no retornar auditoria ni status
+	public ProductDto mapProductDto(Product p) {
+		return new ProductDto(
+				p.getId(),
+				p.getName(),
+				p.getDescription(),
+				p.getStock(),
+				p.getPrice(),
+				p.getRating(),
+				p.getCondition());
+	}
+
+	// Cerca per condició, només productes actius
+	public List<ProductDto> findByCondition(String condition) {
+		ProductCondition productCondition = ProductCondition.valueOf(condition.toUpperCase());
+		List<Product> products = productRepository.findByConditionAndStatusTrue(productCondition);
+		return products.stream().map(p -> mapProductDto(p)).toList();
+	}
+
+	// Ordena per rating (asc/desc), només productes actius
+	public List<ProductDto> findByOrderRating(String order) {
+		if (order == null) {
+			throw new IllegalArgumentException("El parámetro order es obligatorio");
+		}
+
+		if (order.equalsIgnoreCase("asc")) {
+			List<Product> products = productRepository.findByStatusTrueOrderByRatingAsc();
+			return products.stream().map(p -> mapProductDto(p)).toList();
+		}
+
+		if (order.equalsIgnoreCase("desc")) {
+			List<Product> products = productRepository.findByStatusTrueOrderByRatingDesc();
+			return products.stream().map(p -> mapProductDto(p)).toList();
+		}
+
+		throw new IllegalArgumentException("El parámetro order debe ser asc o desc");
+	}
 
     // Mètode per actualitzar el stock d'un producte
 	public Product updateStock(Long id, Integer stock) {
