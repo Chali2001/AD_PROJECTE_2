@@ -34,15 +34,20 @@ public class ProductController {
     }
 
 
-    // [Endpoint JPQL] Buscar por rango de precios y prefijo 
+    // [Endpoint JPQL] Buscar por rango de precios y fragmento de nombre
     @GetMapping("/search/range")
-    public ResponseEntity<List<ProductResponseDTO>> searchByPriceRange(
+    public ResponseEntity<?> searchByPriceRange(
             @RequestParam Double priceMin,
             @RequestParam Double priceMax,
-            @RequestParam String prefix,
+            @RequestParam String nameFragment,
             @RequestParam(defaultValue = "10") int limit) {
-        
-        List<ProductResponseDTO> results = productService.searchByPriceRangeAndName(priceMin, priceMax, prefix, limit);
+
+        if (limit <= 0) {
+            return ResponseEntity.badRequest()
+                    .body(new ErrorDTO("INVALID_LIMIT", "El paràmetre 'limit' ha de ser major que 0."));
+        }
+
+        List<ProductResponseDTO> results = productService.searchByPriceRangeAndName(priceMin, priceMax, nameFragment, limit);
         return ResponseEntity.ok(results);
     }
 

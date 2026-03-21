@@ -9,7 +9,7 @@ public class ProductResponseDTO {
     private Integer stock;
     private Double price;
     private Double rating;
-    private ProductCondition conditionStatus;
+    private ProductCondition condition;
     public Long getId() {
         return id;
     }
@@ -46,11 +46,11 @@ public class ProductResponseDTO {
     public void setRating(Double rating) {
         this.rating = rating;
     }
-    public ProductCondition getConditionStatus() {
-        return conditionStatus;
+    public ProductCondition getCondition() {
+        return condition;
     }
-    public void setConditionStatus(ProductCondition conditionStatus) {
-        this.conditionStatus = conditionStatus;
+    public void setCondition(ProductCondition condition) {
+        this.condition = condition;
     }
 
   

@@ -4,6 +4,9 @@ import com.ra34.projecte2.dto.ProductResponseDTO;
 import com.ra34.projecte2.model.Product;
 import com.ra34.projecte2.model.ProductCondition;
 import com.ra34.projecte2.repository.ProductRepository;
+import org.apache.commons.csv.CSVFormat;
+import org.apache.commons.csv.CSVParser;
+import org.apache.commons.csv.CSVRecord;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +15,7 @@ import org.springframework.data.domain.Pageable;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +23,10 @@ import java.util.stream.Collectors;
 @Service
 public class ProductService {
 
-    private final ProductRepository productRepository; // Inyección por constructor
+    private static final int MAX_LIMIT = 100;
+    private static final int EXPECTED_COLUMNS = 6;
+
+    private final ProductRepository productRepository;
 
     public ProductService(ProductRepository productRepository) {
         this.productRepository = productRepository;
@@ -28,33 +35,42 @@ public class ProductService {
     @Transactional
     public int uploadCsv(MultipartFile file) {
         int count = 0;
-        try (BufferedReader br = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
-            String line;
-            int lineNumber = 0;
-            while ((line = br.readLine()) != null) {
-                lineNumber++;
-                if (lineNumber == 1) continue; // Saltar cabecera
-                
-                String[] data = line.split(",");
+        try (BufferedReader br = new BufferedReader(
+                new InputStreamReader(file.getInputStream(), StandardCharsets.UTF_8));
+             CSVParser csvParser = new CSVParser(br, CSVFormat.DEFAULT.withFirstRecordAsHeader())) {
+
+            List<CSVRecord> records = csvParser.getRecords();
+            List<Product> batch = new java.util.ArrayList<>(records.size());
+
+            for (CSVRecord record : records) {
+                long lineNumber = record.getRecordNumber() + 1;
+                if (record.size() != EXPECTED_COLUMNS) {
+                    throw new RuntimeException("Error en la línea " + lineNumber
+                            + ": se esperaban " + EXPECTED_COLUMNS + " columnas pero se encontraron " + record.size());
+                }
                 try {
                     Product p = new Product();
-                    p.setName(data[0]);
-                    p.setDescription(data[1]);
-                    p.setStock(Integer.parseInt(data[2]));
-                    p.setPrice(Double.parseDouble(data[3]));
-                    p.setRating(Double.parseDouble(data[4]));
-                    p.setCondition(ProductCondition.valueOf(data[5].toUpperCase()));
+                    p.setName(record.get(0));
+                    p.setDescription(record.get(1));
+                    p.setStock(Integer.parseInt(record.get(2).trim()));
+                    p.setPrice(Double.parseDouble(record.get(3).trim()));
+                    p.setRating(Double.parseDouble(record.get(4).trim()));
+                    p.setCondition(ProductCondition.valueOf(record.get(5).trim().toUpperCase()));
                     p.setStatus(true);
-                    p.setDataCreated(LocalDateTime.now());
-                    
-                    productRepository.save(p);
-                    count++;
+                    LocalDateTime now = LocalDateTime.now();
+                    p.setDataCreated(now);
+                    p.setDataUpdated(now);
+                    batch.add(p);
                 } catch (Exception e) {
-                    throw new RuntimeException("Error en la línea " + lineNumber + ": " + e.getMessage());
+                    throw new RuntimeException("Error en la línea " + lineNumber + ": " + e.getMessage(), e);
                 }
             }
+            productRepository.saveAll(batch);
+            count = batch.size();
+        } catch (RuntimeException e) {
+            throw e;
         } catch (Exception e) {
-            throw new RuntimeException("Error procesando el archivo: " + e.getMessage());
+            throw new RuntimeException("Error procesando el archivo: " + e.getMessage(), e);
         }
         return count;
     }
@@ -69,20 +85,20 @@ public class ProductService {
         dto.setStock(p.getStock());
         dto.setPrice(p.getPrice());
         dto.setRating(p.getRating());
-        dto.setConditionStatus(p.getCondition());
+        dto.setCondition(p.getCondition());
         return dto;
     }
-    // 1. Buscar por rango de precio y nombre (JPQL) 
-    public List<ProductResponseDTO> searchByPriceRangeAndName(Double priceMin, Double priceMax, String prefix, int limit) {
-        // Usamos PageRequest para limitar el número de resultados (paginación básica)
-        Pageable pageable = PageRequest.of(0, limit);
-        List<Product> products = productRepository.findByPriceRangeAndNameAndStatusTrue(priceMin, priceMax, prefix, pageable);
+
+    // 1. Buscar por rango de precio y nombre (JPQL)
+    public List<ProductResponseDTO> searchByPriceRangeAndName(Double priceMin, Double priceMax, String nameFragment, int limit) {
+        int pageSize = Math.max(1, Math.min(limit, MAX_LIMIT));
+        Pageable pageable = PageRequest.of(0, pageSize);
+        List<Product> products = productRepository.findByPriceRangeAndNameAndStatusTrue(priceMin, priceMax, nameFragment, pageable);
         return products.stream().map(this::convertToDTO).collect(Collectors.toList());
     }
 
-    // 2. Top 5 mejor relación calidad-precio (JPQL) 
+    // 2. Top 5 mejor relación calidad-precio (JPQL)
     public List<ProductResponseDTO> getTop5BestQualityPrice() {
-        // Pedimos solo la primera página con un tamaño máximo de 5 elementos
         Pageable pageable = PageRequest.of(0, 5);
         List<Product> products = productRepository.findTopBestQualityPriceRatio(pageable);
         return products.stream().map(this::convertToDTO).collect(Collectors.toList());
