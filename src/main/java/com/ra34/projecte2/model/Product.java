@@ -15,35 +15,35 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    
+
     @Column(nullable = false, length = 20)
     private String name;
-    
+
     @Column(length = 100)
     private String description;
-    
+
     @Column(nullable = false)
     private Integer stock;
-    
+
     @Column(nullable = false)
     private Double price;
-    
-    private Double rating; 
-    
+
+    private Double rating;
+
     @Enumerated(value = EnumType.STRING)
-    private ProductCondition condition; // Condición: NOU, BON_ESTAT...
-    
+    private ProductCondition condition;
+
     @Column(nullable = false)
     private Boolean status = true;
 
     private LocalDateTime dataCreated;
     private LocalDateTime dataUpdated;
 
-
     public Product() {
     }
 
-    public Product(String name, String description, Integer stock, Double price, Double rating, ProductCondition condition, Boolean status) {
+    public Product(String name, String description, Integer stock, Double price, Double rating,
+            ProductCondition condition, Boolean status) {
         this.name = name;
         this.description = description;
         this.stock = stock;
@@ -55,33 +55,83 @@ public class Product {
         this.dataUpdated = LocalDateTime.now();
     }
 
-    public Long getId() { return id; }
-    public void setId(Long id) { this.id = id; }
+    public Long getId() {
+        return id;
+    }
 
-    public String getName() { return name; }
-    public void setName(String name) { this.name = name; }
+    public void setId(Long id) {
+        this.id = id;
+    }
 
-    public String getDescription() { return description; }
-    public void setDescription(String description) { this.description = description; }
+    public String getName() {
+        return name;
+    }
 
-    public Integer getStock() { return stock; }
-    public void setStock(Integer stock) { this.stock = stock; }
+    public void setName(String name) {
+        this.name = name;
+    }
 
-    public Double getPrice() { return price; }
-    public void setPrice(Double price) { this.price = price; }
+    public String getDescription() {
+        return description;
+    }
 
-    public Double getRating() { return rating; }
-    public void setRating(Double rating) { this.rating = rating; }
+    public void setDescription(String description) {
+        this.description = description;
+    }
 
-    public ProductCondition getCondition() { return condition; }
-    public void setCondition(ProductCondition condition) { this.condition = condition; }
+    public Integer getStock() {
+        return stock;
+    }
 
-    public Boolean getStatus() { return status; }
-    public void setStatus(Boolean status) { this.status = status; }
+    public void setStock(Integer stock) {
+        this.stock = stock;
+    }
 
-    public LocalDateTime getDataCreated() { return dataCreated; }
-    public void setDataCreated(LocalDateTime dataCreated) { this.dataCreated = dataCreated; }
+    public Double getPrice() {
+        return price;
+    }
 
-    public LocalDateTime getDataUpdated() { return dataUpdated; }
-    public void setDataUpdated(LocalDateTime dataUpdated) { this.dataUpdated = dataUpdated; }
+    public void setPrice(Double price) {
+        this.price = price;
+    }
+
+    public Double getRating() {
+        return rating;
+    }
+
+    public void setRating(Double rating) {
+        this.rating = rating;
+    }
+
+    public ProductCondition getCondition() {
+        return condition;
+    }
+
+    public void setCondition(ProductCondition condition) {
+        this.condition = condition;
+    }
+
+    public Boolean getStatus() {
+        return status;
+    }
+
+    public void setStatus(Boolean status) {
+        this.status = status;
+    }
+
+    public LocalDateTime getDataCreated() {
+        return dataCreated;
+    }
+
+    public void setDataCreated(LocalDateTime dataCreated) {
+        this.dataCreated = dataCreated;
+    }
+
+    public LocalDateTime getDataUpdated() {
+        return dataUpdated;
+    }
+
+    public void setDataUpdated(LocalDateTime dataUpdated) {
+        this.dataUpdated = dataUpdated;
+    }
 }
