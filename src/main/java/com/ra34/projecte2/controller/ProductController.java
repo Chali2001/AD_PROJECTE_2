@@ -28,6 +28,21 @@ public class ProductController {
 	@Autowired
 	private ProductService productService;
 
+	// Endpoint per paginació de 5 productes per bloque
+	@GetMapping("/search/page")
+	public ResponseEntity<?> findProductsPage(@RequestParam(defaultValue = "0") int page) {
+		try {
+			List<ProductDto> products = productService.findProductsPage(page);
+			return ResponseEntity.status(HttpStatus.OK).body(products);
+		} catch (IllegalArgumentException e) {
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+					.body(new ErrorDto(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
+		} catch (Exception e) {
+			return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+					.body(new ErrorDto(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Error no controlado"));
+		}
+	}
+
 	// Endpoint per consultar productes per condició i status=true
 	@GetMapping("/search/condition")
 	public ResponseEntity<?> findByCondition(@RequestParam String condition) {
