@@ -17,5 +17,9 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 	List<Product> findByStatusTrueOrderByRatingAsc();
     // Ordena per rating (asc/desc), només productes actius
 	List<Product> findByStatusTrueOrderByRatingDesc();
+	// Filtra per rang de rating i només productes actius
+	List<Product> findByRatingBetweenAndStatusTrue(Double ratingMin, Double ratingMax);
+	// Top 10 productes NOU, actius, ordenats per millor rating
+	List<Product> findTop10ByConditionAndStatusTrueOrderByRatingDesc(ProductCondition condition);
 
 }

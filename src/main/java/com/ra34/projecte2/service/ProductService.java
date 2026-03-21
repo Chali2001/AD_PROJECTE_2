@@ -1,6 +1,7 @@
 package com.ra34.projecte2.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,51 @@ public class ProductService {
 
 		throw new IllegalArgumentException("El parámetro order debe ser asc o desc");
 	}
+
+		// Cerca avançada per rang de rating, ordenació i límit
+		public List<ProductDto> findByRatingRangeOrder(Double ratingMin, Double ratingMax, String camp, String order,
+				Integer limit) {
+			if (ratingMin == null || ratingMax == null) {
+				throw new IllegalArgumentException("ratingMin y ratingMax son obligatorios");
+			}
+
+			if (limit == null || limit <= 0) {
+				throw new IllegalArgumentException("limit debe ser mayor que 0");
+			}
+
+			if (camp == null || order == null) {
+				throw new IllegalArgumentException("camp y order son obligatorios");
+			}
+
+			List<Product> products = productRepository.findByRatingBetweenAndStatusTrue(ratingMin, ratingMax);
+
+			Comparator<Product> comparator;
+			if (camp.equalsIgnoreCase("rating")) {
+				comparator = Comparator.comparing(Product::getRating, Comparator.nullsLast(Double::compareTo));
+			} else if (camp.equalsIgnoreCase("price")) {
+				comparator = Comparator.comparing(Product::getPrice);
+			} else {
+				throw new IllegalArgumentException("El parámetro camp debe ser rating o price");
+			}
+
+			if (order.equalsIgnoreCase("desc")) {
+				comparator = comparator.reversed();
+			} else if (!order.equalsIgnoreCase("asc")) {
+				throw new IllegalArgumentException("El parámetro order debe ser asc o desc");
+			}
+
+			return products.stream()
+					.sorted(comparator)
+					.limit(limit)
+					.map(p -> mapProductDto(p))
+					.toList();
+		}
+
+		// Top 10 productes nous amb millor valoració
+		public List<ProductDto> findTop10NewBestRated() {
+			List<Product> products = productRepository.findTop10ByConditionAndStatusTrueOrderByRatingDesc(ProductCondition.NOU);
+			return products.stream().map(p -> mapProductDto(p)).toList();
+		}
 
     // Mètode per actualitzar el stock d'un producte
 	public Product updateStock(Long id, Integer stock) {
