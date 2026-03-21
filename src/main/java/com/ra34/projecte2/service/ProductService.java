@@ -5,6 +5,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import com.ra34.projecte2.dto.ProductDto;
@@ -99,6 +101,20 @@ public class ProductService {
 		public List<ProductDto> findTop10NewBestRated() {
 			List<Product> products = productRepository.findTop10ByConditionAndStatusTrueOrderByRatingDesc(ProductCondition.NOU);
 			return products.stream().map(p -> mapProductDto(p)).toList();
+		}
+
+		// Paginació de 5 productes per pàgina
+		public List<ProductDto> findProductsPage(int page) {
+			if (page < 0) {
+				throw new IllegalArgumentException("page no puede ser negativo");
+			}
+
+			Pageable pageable = PageRequest.of(page, 5);
+			return productRepository.findByStatusTrue(pageable)
+					.getContent()
+					.stream()
+					.map(p -> mapProductDto(p))
+					.toList();
 		}
 
     // Mètode per actualitzar el stock d'un producte
