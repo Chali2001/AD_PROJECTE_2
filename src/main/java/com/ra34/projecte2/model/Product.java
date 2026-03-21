@@ -23,14 +23,14 @@ public class Product {
     private int stock;
     @Column(nullable = false)
     private double price;
-    private double rating;
+    private Double rating;
     @Enumerated(value = EnumType.STRING)
     private ProductCondition condition;
     private boolean status;
     private LocalDateTime dataCreated;
     private LocalDateTime dataUpdated;
 
-    public Product( String name, String description, int stock, double price, double rating, ProductCondition condition, boolean status) {
+    public Product( String name, String description, int stock, double price, Double rating, ProductCondition condition, boolean status) {
         this.name = name;
         this.description = description;
         this.stock = stock;
@@ -40,6 +40,9 @@ public class Product {
         this.status = status;
         this.dataCreated = LocalDateTime.now();
         this.dataUpdated = LocalDateTime.now();
+    }
+
+    public Product() {
     }
 
     public Long getId() {
@@ -82,11 +85,11 @@ public class Product {
         this.price = price;
     }
 
-    public double getRating() {
+    public Double getRating() {
         return rating;
     }
 
-    public void setRating(double rating) {
+    public void setRating(Double rating) {
         this.rating = rating;
     }
 
