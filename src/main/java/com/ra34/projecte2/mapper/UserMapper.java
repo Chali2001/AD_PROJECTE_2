@@ -1,7 +1,6 @@
 package com.ra34.projecte2.mapper;
 
 import com.ra34.projecte2.dto.CustomerCreateRequestDTO;
-import com.ra34.projecte2.dto.CustomerResponseDTO;
 import com.ra34.projecte2.dto.UserCreateRequestDTO;
 import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.model.Customer;
@@ -36,20 +35,8 @@ public final class UserMapper {
         UserResponseDTO response = new UserResponseDTO();
         response.setId(user.getId());
         response.setEmail(user.getEmail());
-        response.setCustomer(toCustomerResponseDTO(user.getCustomer()));
-        return response;
-    }
-
-    public static CustomerResponseDTO toCustomerResponseDTO(Customer customer) {
-        if (customer == null) {
-            return null;
-        }
-
-        CustomerResponseDTO response = new CustomerResponseDTO();
-        response.setId(customer.getId());
-        response.setFirstName(customer.getFirstName());
-        response.setLastName(customer.getLastName());
-        response.setPhone(customer.getPhone());
+        response.setCustomer(CustomerMapper.toCustomerResponseDTO(user.getCustomer()));
         return response;
     }
 }
+

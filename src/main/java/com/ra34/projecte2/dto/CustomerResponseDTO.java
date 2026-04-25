@@ -1,11 +1,14 @@
 package com.ra34.projecte2.dto;
 
+import java.util.List;
+
 public class CustomerResponseDTO {
 
     private Long id;
     private String firstName;
     private String lastName;
     private String phone;
+    private List<AddressResponseDTO> addresses;
 
     public Long getId() {
         return id;
@@ -37,5 +40,13 @@ public class CustomerResponseDTO {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public List<AddressResponseDTO> getAddresses() {
+        return addresses;
+    }
+
+    public void setAddresses(List<AddressResponseDTO> addresses) {
+        this.addresses = addresses;
     }
 }
