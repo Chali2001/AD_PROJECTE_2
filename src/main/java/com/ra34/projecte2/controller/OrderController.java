@@ -48,6 +48,19 @@ public class OrderController {
         return ResponseEntity.ok(response);
     }
 
+    // Cancela un order pendiente y devuelve la información actualizada.
+    @PutMapping("/{id}/cancelar")
+    public ResponseEntity<OrderResponseDTO> cancelOrder(@PathVariable Long id) {
+
+        OrderResponseDTO response = orderService.cancelOrder(id);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
     // Añade uno o varios productos a un order existente y recalcula el total.
     @PutMapping("/{id}/products")
     public ResponseEntity<OrderResponseDTO> addProducts(@PathVariable Long id, @RequestBody OrderAddProductsRequestDTO request) {

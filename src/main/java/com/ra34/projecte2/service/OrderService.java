@@ -109,6 +109,24 @@ public class OrderService {
     }
 
     @Transactional
+    public OrderResponseDTO cancelOrder(Long orderId) {
+        if (orderId == null) {
+            return null;
+        }
+
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null || order.getOrderStatus() != OrderStatus.PENDENT) {
+            return null;
+        }
+
+        order.setOrderStatus(OrderStatus.CANCELAT);
+        order.setDataUpdated(LocalDateTime.now());
+
+        Order savedOrder = orderRepository.save(order);
+        return OrderMapper.toResponseDTO(savedOrder);
+    }
+
+    @Transactional
     public OrderResponseDTO addProducts(Long orderId, OrderAddProductsRequestDTO request) {
         if (orderId == null || request == null || request.getProductIds() == null || request.getProductIds().isEmpty()) {
             return null;
