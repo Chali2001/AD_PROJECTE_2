@@ -1,6 +1,7 @@
 package com.ra34.projecte2.service;
 
 import com.ra34.projecte2.dto.OrderCreateRequestDTO;
+import com.ra34.projecte2.dto.OrderAddProductsRequestDTO;
 import com.ra34.projecte2.dto.OrderProductRequestDTO;
 import com.ra34.projecte2.dto.OrderResponseDTO;
 import com.ra34.projecte2.mapper.OrderMapper;
@@ -101,6 +102,46 @@ public class OrderService {
         }
 
         order.setOrderStatus(OrderStatus.PROCESSAT);
+        order.setDataUpdated(LocalDateTime.now());
+
+        Order savedOrder = orderRepository.save(order);
+        return OrderMapper.toResponseDTO(savedOrder);
+    }
+
+    @Transactional
+    public OrderResponseDTO addProducts(Long orderId, OrderAddProductsRequestDTO request) {
+        if (orderId == null || request == null || request.getProductIds() == null || request.getProductIds().isEmpty()) {
+            return null;
+        }
+
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null) {
+            return null;
+        }
+
+        BigDecimal totalAmount = order.getTotalAmount() == null ? BigDecimal.ZERO : order.getTotalAmount();
+
+        for (Long productId : request.getProductIds()) {
+            if (productId == null) {
+                return null;
+            }
+
+            Product product = productRepository.findById(productId).orElse(null);
+            if (product == null || product.getPrice() == null) {
+                return null;
+            }
+
+            BigDecimal unitPrice = BigDecimal.valueOf(product.getPrice());
+            totalAmount = totalAmount.add(unitPrice);
+
+            OrderItem orderItem = new OrderItem();
+            orderItem.setProduct(product);
+            orderItem.setQuantity(1);
+            orderItem.setUnitPrice(unitPrice);
+            order.addOrderItem(orderItem);
+        }
+
+        order.setTotalAmount(totalAmount);
         order.setDataUpdated(LocalDateTime.now());
 
         Order savedOrder = orderRepository.save(order);

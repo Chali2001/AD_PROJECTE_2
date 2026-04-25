@@ -1,6 +1,7 @@
 package com.ra34.projecte2.controller;
 
 import com.ra34.projecte2.dto.OrderCreateRequestDTO;
+import com.ra34.projecte2.dto.OrderAddProductsRequestDTO;
 import com.ra34.projecte2.dto.OrderResponseDTO;
 import com.ra34.projecte2.service.OrderService;
 import org.springframework.http.ResponseEntity;
@@ -39,6 +40,19 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> processOrder(@PathVariable Long id) {
 
         OrderResponseDTO response = orderService.processOrder(id);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Añade uno o varios productos a un order existente y recalcula el total.
+    @PutMapping("/{id}/products")
+    public ResponseEntity<OrderResponseDTO> addProducts(@PathVariable Long id, @RequestBody OrderAddProductsRequestDTO request) {
+
+        OrderResponseDTO response = orderService.addProducts(id, request);
 
         if (response == null) {
             return ResponseEntity.badRequest().build();
