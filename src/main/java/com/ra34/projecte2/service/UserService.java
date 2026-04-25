@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class UserService {
@@ -63,6 +65,15 @@ public class UserService {
         return userRepository.findById(id)
                 .map(UserMapper::toResponseDTO)
                 .orElse(null);
+    }
+
+    @Transactional(readOnly = true)
+    public List<UserResponseDTO> getUsers() {
+        // Listado general de usuarios devolviendo solo DTOs.
+        return userRepository.findAll()
+                .stream()
+                .map(UserMapper::toResponseDTO)
+                .collect(Collectors.toList());
     }
 
     @Transactional

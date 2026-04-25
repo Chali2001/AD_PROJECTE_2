@@ -4,6 +4,7 @@ import com.ra34.projecte2.dto.UserCreateRequestDTO;
 import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.service.UserService;
 import org.springframework.http.ResponseEntity;
+import java.util.List;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -45,6 +46,13 @@ public class UserController {
             return ResponseEntity.notFound().build();
         }
 
+        return ResponseEntity.ok(response);
+    }
+
+    // Consulta todos los usuarios y devuelve id, email y customer.
+    @GetMapping
+    public ResponseEntity<List<UserResponseDTO>> getUsers() {
+        List<UserResponseDTO> response = userService.getUsers();
         return ResponseEntity.ok(response);
     }
 
