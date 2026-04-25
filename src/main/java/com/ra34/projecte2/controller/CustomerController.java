@@ -24,6 +24,13 @@ public class CustomerController {
         this.customerService = customerService;
     }
 
+    // Consulta todos los customers y devuelve email, nombre, apellido, teléfono y direcciones.
+    @GetMapping
+    public ResponseEntity<List<CustomerResponseDTO>> getCustomers() {
+        List<CustomerResponseDTO> response = customerService.getCustomers();
+        return ResponseEntity.ok(response);
+    }
+
     // Consulta un customer por id y devuelve email, nombre, apellido, teléfono y direcciones.
     @GetMapping("/{id}")
     public ResponseEntity<CustomerResponseDTO> getCustomer(@PathVariable Long id) {

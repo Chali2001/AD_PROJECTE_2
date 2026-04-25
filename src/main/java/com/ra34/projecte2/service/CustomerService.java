@@ -35,6 +35,14 @@ public class CustomerService {
                 .orElse(null);
     }
 
+    @Transactional(readOnly = true)
+    public List<CustomerResponseDTO> getCustomers() {
+        return customerRepository.findAll()
+                .stream()
+                .map(CustomerMapper::toCustomerResponseDTO)
+                .toList();
+    }
+
     @Transactional
     public CustomerResponseDTO addAddresses(Long customerId, List<AddressCreateRequestDTO> requests) {
         if (customerId == null || requests == null || requests.isEmpty()) {
