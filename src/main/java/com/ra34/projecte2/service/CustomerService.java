@@ -5,6 +5,7 @@ import com.ra34.projecte2.dto.CustomerResponseDTO;
 import com.ra34.projecte2.mapper.CustomerMapper;
 import com.ra34.projecte2.model.Address;
 import com.ra34.projecte2.model.Customer;
+import com.ra34.projecte2.repository.AddressRepository;
 import com.ra34.projecte2.repository.CustomerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,9 +17,11 @@ import java.util.List;
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
+    private final AddressRepository addressRepository;
 
-    public CustomerService(CustomerRepository customerRepository) {
+    public CustomerService(CustomerRepository customerRepository, AddressRepository addressRepository) {
         this.customerRepository = customerRepository;
+        this.addressRepository = addressRepository;
     }
 
     @Transactional(readOnly = true)
@@ -56,5 +59,24 @@ public class CustomerService {
         customer.setDataUpdated(LocalDateTime.now());
         Customer savedCustomer = customerRepository.save(customer);
         return CustomerMapper.toCustomerResponseDTO(savedCustomer);
+    }
+
+    @Transactional
+    public boolean deleteAddresses(Long customerId) {
+        if (customerId == null) {
+            return false;
+        }
+
+        Customer customer = customerRepository.findById(customerId).orElse(null);
+        if (customer == null) {
+            return false;
+        }
+
+        addressRepository.deleteByCustomer_Id(customerId);
+        customer.getAddresses().clear();
+        customer.setDataUpdated(LocalDateTime.now());
+        customerRepository.save(customer);
+
+        return true;
     }
 }

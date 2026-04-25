@@ -4,6 +4,7 @@ import com.ra34.projecte2.dto.AddressCreateRequestDTO;
 import com.ra34.projecte2.dto.CustomerResponseDTO;
 import com.ra34.projecte2.service.CustomerService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -47,5 +48,18 @@ public class CustomerController {
         }
 
         return ResponseEntity.ok(response);
+    }
+
+    // Borra todas las direcciones de un customer existente sin borrar el usuario.
+    @DeleteMapping("/{id}/addresses")
+    public ResponseEntity<Void> deleteAddresses(@PathVariable Long id) {
+
+        boolean deleted = customerService.deleteAddresses(id);
+
+        if (!deleted) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.noContent().build();
     }
 }
