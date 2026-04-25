@@ -53,4 +53,15 @@ public class UserService {
         User savedUser = userRepository.save(user);
         return UserMapper.toResponseDTO(savedUser);
     }
+
+    @Transactional(readOnly = true)
+    public UserResponseDTO getUser(Long id) {
+        if (id == null) {
+            return null;
+        }
+
+        return userRepository.findById(id)
+                .map(UserMapper::toResponseDTO)
+                .orElse(null);
+    }
 }

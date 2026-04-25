@@ -4,6 +4,7 @@ public class UserResponseDTO {
 
     private Long id;
     private String email;
+    private CustomerResponseDTO customer;
 
     public Long getId() {
         return id;
@@ -19,5 +20,13 @@ public class UserResponseDTO {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public CustomerResponseDTO getCustomer() {
+        return customer;
+    }
+
+    public void setCustomer(CustomerResponseDTO customer) {
+        this.customer = customer;
     }
 }

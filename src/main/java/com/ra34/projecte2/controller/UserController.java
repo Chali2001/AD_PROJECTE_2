@@ -4,6 +4,8 @@ import com.ra34.projecte2.dto.UserCreateRequestDTO;
 import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.service.UserService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -27,6 +29,19 @@ public class UserController {
 
         if (response == null) {
             return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Consulta un usuario por id y devuelve su información básica con el customer.
+    @GetMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> getUser(@PathVariable Long id) {
+
+        UserResponseDTO response = userService.getUser(id);
+
+        if (response == null) {
+            return ResponseEntity.notFound().build();
         }
 
         return ResponseEntity.ok(response);
