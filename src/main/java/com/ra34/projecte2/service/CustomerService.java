@@ -21,6 +21,17 @@ public class CustomerService {
         this.customerRepository = customerRepository;
     }
 
+    @Transactional(readOnly = true)
+    public CustomerResponseDTO getCustomer(Long customerId) {
+        if (customerId == null) {
+            return null;
+        }
+
+        return customerRepository.findById(customerId)
+                .map(CustomerMapper::toCustomerResponseDTO)
+                .orElse(null);
+    }
+
     @Transactional
     public CustomerResponseDTO addAddresses(Long customerId, List<AddressCreateRequestDTO> requests) {
         if (customerId == null || requests == null || requests.isEmpty()) {

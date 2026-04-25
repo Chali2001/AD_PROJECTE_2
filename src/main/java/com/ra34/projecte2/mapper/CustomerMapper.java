@@ -42,6 +42,9 @@ public final class CustomerMapper {
 
         CustomerResponseDTO response = new CustomerResponseDTO();
         response.setId(customer.getId());
+        if (customer.getUser() != null) {
+            response.setEmail(customer.getUser().getEmail());
+        }
         response.setFirstName(customer.getFirstName());
         response.setLastName(customer.getLastName());
         response.setPhone(customer.getPhone());
