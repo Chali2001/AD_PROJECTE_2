@@ -4,6 +4,8 @@ import com.ra34.projecte2.dto.OrderCreateRequestDTO;
 import com.ra34.projecte2.dto.OrderResponseDTO;
 import com.ra34.projecte2.service.OrderService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +26,19 @@ public class OrderController {
     public ResponseEntity<OrderResponseDTO> createOrder(@RequestBody OrderCreateRequestDTO request) {
 
         OrderResponseDTO response = orderService.createOrder(request);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Procesa un order pendiente y devuelve la información actualizada.
+    @PutMapping("/{id}/processar")
+    public ResponseEntity<OrderResponseDTO> processOrder(@PathVariable Long id) {
+
+        OrderResponseDTO response = orderService.processOrder(id);
 
         if (response == null) {
             return ResponseEntity.badRequest().build();

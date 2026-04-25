@@ -25,9 +25,7 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final ProductRepository productRepository;
 
-    public OrderService(OrderRepository orderRepository,
-                        CustomerRepository customerRepository,
-                        ProductRepository productRepository) {
+    public OrderService(OrderRepository orderRepository, CustomerRepository customerRepository, ProductRepository productRepository) {
         this.orderRepository = orderRepository;
         this.customerRepository = customerRepository;
         this.productRepository = productRepository;
@@ -87,6 +85,24 @@ public class OrderService {
         }
 
         order.setTotalAmount(totalAmount);
+        Order savedOrder = orderRepository.save(order);
+        return OrderMapper.toResponseDTO(savedOrder);
+    }
+
+    @Transactional
+    public OrderResponseDTO processOrder(Long orderId) {
+        if (orderId == null) {
+            return null;
+        }
+
+        Order order = orderRepository.findById(orderId).orElse(null);
+        if (order == null || order.getOrderStatus() != OrderStatus.PENDENT) {
+            return null;
+        }
+
+        order.setOrderStatus(OrderStatus.PROCESSAT);
+        order.setDataUpdated(LocalDateTime.now());
+
         Order savedOrder = orderRepository.save(order);
         return OrderMapper.toResponseDTO(savedOrder);
     }
