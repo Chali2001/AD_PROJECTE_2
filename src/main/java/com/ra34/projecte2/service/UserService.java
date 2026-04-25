@@ -64,4 +64,53 @@ public class UserService {
                 .map(UserMapper::toResponseDTO)
                 .orElse(null);
     }
+
+    @Transactional
+    public UserResponseDTO updateUser(Long id, UserCreateRequestDTO request) {
+        if (id == null || request == null) {
+            return null;
+        }
+
+        User user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        if (request.getEmail() != null && !request.getEmail().isBlank()) {
+            String newEmail = request.getEmail().trim();
+            if (!newEmail.equalsIgnoreCase(user.getEmail()) && userRepository.existsByEmail(newEmail)) {
+                return null;
+            }
+            user.setEmail(newEmail);
+        }
+
+        if (request.getPassword() != null && !request.getPassword().isBlank()) {
+            user.setPassword(request.getPassword());
+        }
+
+        if (request.getCustomer() != null) {
+            Customer customer = user.getCustomer();
+            if (customer == null) {
+                customer = new Customer();
+                customer.setStatus(true);
+                customer.setDataCreated(LocalDateTime.now());
+                user.setCustomer(customer);
+            }
+
+            if (request.getCustomer().getFirstName() != null) {
+                customer.setFirstName(request.getCustomer().getFirstName());
+            }
+            if (request.getCustomer().getLastName() != null) {
+                customer.setLastName(request.getCustomer().getLastName());
+            }
+            if (request.getCustomer().getPhone() != null) {
+                customer.setPhone(request.getCustomer().getPhone());
+            }
+            customer.setDataUpdated(LocalDateTime.now());
+        }
+
+        user.setDataUpdated(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponseDTO(savedUser);
+    }
 }

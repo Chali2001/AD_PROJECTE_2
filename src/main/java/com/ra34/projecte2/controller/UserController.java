@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -42,6 +43,19 @@ public class UserController {
 
         if (response == null) {
             return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Modifica datos del user y/o del customer relacionado en una sola transacción.
+    @PutMapping("/{id}")
+    public ResponseEntity<UserResponseDTO> updateUser(@PathVariable Long id, @RequestBody UserCreateRequestDTO request) {
+
+        UserResponseDTO response = userService.updateUser(id, request);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
         }
 
         return ResponseEntity.ok(response);
