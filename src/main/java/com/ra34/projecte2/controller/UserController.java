@@ -1,6 +1,7 @@
 package com.ra34.projecte2.controller;
 
 import com.ra34.projecte2.dto.UserCreateRequestDTO;
+import com.ra34.projecte2.dto.UserAddRolesRequestDTO;
 import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.service.UserService;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,19 @@ public class UserController {
     @GetMapping
     public ResponseEntity<List<UserResponseDTO>> getUsers() {
         List<UserResponseDTO> response = userService.getUsers();
+        return ResponseEntity.ok(response);
+    }
+
+    // Añade una lista de roles a un usuario existente y devuelve el usuario con sus roles.
+    @PutMapping("/{id}/roles")
+    public ResponseEntity<UserResponseDTO> addRoles(@PathVariable Long id, @RequestBody UserAddRolesRequestDTO request) {
+
+        UserResponseDTO response = userService.addRoles(id, request);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
         return ResponseEntity.ok(response);
     }
 

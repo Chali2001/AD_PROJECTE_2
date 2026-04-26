@@ -1,10 +1,13 @@
 package com.ra34.projecte2.service;
 
 import com.ra34.projecte2.dto.UserCreateRequestDTO;
+import com.ra34.projecte2.dto.UserAddRolesRequestDTO;
 import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.mapper.UserMapper;
 import com.ra34.projecte2.model.Customer;
+import com.ra34.projecte2.model.Role;
 import com.ra34.projecte2.model.User;
+import com.ra34.projecte2.repository.RoleRepository;
 import com.ra34.projecte2.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,9 +20,11 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
 
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, RoleRepository roleRepository) {
         this.userRepository = userRepository;
+        this.roleRepository = roleRepository;
     }
 
     @Transactional
@@ -74,6 +79,37 @@ public class UserService {
                 .stream()
                 .map(UserMapper::toResponseDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Transactional
+    public UserResponseDTO addRoles(Long userId, UserAddRolesRequestDTO request) {
+        if (userId == null || request == null || request.getRoleIds() == null || request.getRoleIds().isEmpty()) {
+            return null;
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        for (Long roleId : request.getRoleIds()) {
+            if (roleId == null) {
+                return null;
+            }
+
+            Role role = roleRepository.findById(roleId).orElse(null);
+            if (role == null) {
+                return null;
+            }
+
+            if (!user.getRoles().contains(role)) {
+                user.getRoles().add(role);
+            }
+        }
+
+        user.setDataUpdated(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponseDTO(savedUser);
     }
 
     @Transactional
