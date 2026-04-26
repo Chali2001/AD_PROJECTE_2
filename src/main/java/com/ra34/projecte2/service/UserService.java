@@ -113,6 +113,35 @@ public class UserService {
     }
 
     @Transactional
+    public UserResponseDTO removeRoles(Long userId, UserAddRolesRequestDTO request) {
+        if (userId == null || request == null || request.getRoleIds() == null || request.getRoleIds().isEmpty()) {
+            return null;
+        }
+
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            return null;
+        }
+
+        for (Long roleId : request.getRoleIds()) {
+            if (roleId == null) {
+                return null;
+            }
+
+            Role role = roleRepository.findById(roleId).orElse(null);
+            if (role == null) {
+                return null;
+            }
+
+            user.getRoles().remove(role);
+        }
+
+        user.setDataUpdated(LocalDateTime.now());
+        User savedUser = userRepository.save(user);
+        return UserMapper.toResponseDTO(savedUser);
+    }
+
+    @Transactional
     public UserResponseDTO updateUser(Long id, UserCreateRequestDTO request) {
         if (id == null || request == null) {
             return null;

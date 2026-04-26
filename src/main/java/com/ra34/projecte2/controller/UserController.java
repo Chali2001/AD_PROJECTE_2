@@ -6,6 +6,7 @@ import com.ra34.projecte2.dto.UserResponseDTO;
 import com.ra34.projecte2.service.UserService;
 import org.springframework.http.ResponseEntity;
 import java.util.List;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -62,6 +63,19 @@ public class UserController {
     public ResponseEntity<UserResponseDTO> addRoles(@PathVariable Long id, @RequestBody UserAddRolesRequestDTO request) {
 
         UserResponseDTO response = userService.addRoles(id, request);
+
+        if (response == null) {
+            return ResponseEntity.badRequest().build();
+        }
+
+        return ResponseEntity.ok(response);
+    }
+
+    // Borra una lista de roles del usuario sin eliminar los roles de la base de datos.
+    @DeleteMapping("/{id}/roles")
+    public ResponseEntity<UserResponseDTO> removeRoles(@PathVariable Long id, @RequestBody UserAddRolesRequestDTO request) {
+
+        UserResponseDTO response = userService.removeRoles(id, request);
 
         if (response == null) {
             return ResponseEntity.badRequest().build();
